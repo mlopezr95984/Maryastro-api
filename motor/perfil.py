@@ -3,6 +3,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 import swisseph as swe
+from motor.firma import calcular_firma_energetica
 
 
 PLANETAS = {
@@ -241,16 +242,18 @@ class PerfilEnergetico:
             }
 
     def calcular(self) -> dict[str, Any]:
-        """
-        Ejecuta los cálculos del Perfil Energético.
 
-        En esta primera etapa calcula únicamente la carta natal.
-        Los demás componentes se incorporarán progresivamente.
-        """
+     """
+     Ejecuta los cálculos disponibles del Perfil Energético.
+     """
 
-        self.calcular_carta()
+     self.calcular_carta()
 
-        return self.obtener_resultado()
+     self.arquetipo_dominante = calcular_firma_energetica(
+        self.posiciones
+    )
+
+     return self.obtener_resultado()
 
     def obtener_resultado(self) -> dict[str, Any]:
         """
