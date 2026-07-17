@@ -4,6 +4,8 @@ from zoneinfo import ZoneInfo
 
 import swisseph as swe
 from motor.firma import calcular_firma_energetica
+from motor.subtipo import calcular_subtipo
+from motor.aspectos import calcular_aspectos
 
 
 PLANETAS = {
@@ -252,6 +254,13 @@ class PerfilEnergetico:
      self.arquetipo_dominante = calcular_firma_energetica(
         self.posiciones
     )
+
+     self.subtipo = calcular_subtipo(self.posiciones)
+
+     self.aspectos = calcular_aspectos(
+        self.posiciones,
+        self.orbe
+     )
 
      return self.obtener_resultado()
 
