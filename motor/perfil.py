@@ -9,6 +9,7 @@ from motor.dinamica import calcular_dinamica_yin_yang
 from motor.firma import calcular_firma_energetica
 from motor.subtipo import calcular_subtipo
 from motor.complementario import calcular_arquetipo_complementario
+from motor.nodos import calcular_eje_nodal
 
 
 PLANETAS = {
@@ -340,16 +341,19 @@ class PerfilEnergetico:
             self.aspectos
         )
 
-        self.dinamica_yin_yang = calcular_dinamica_yin_yang(
-    self.aspectos
-)
-
         self.arquetipo_complementario = (
             calcular_arquetipo_complementario(
                 firma=self.arquetipo_dominante,
                 subtipo=self.subtipo,
                 posiciones=self.posiciones,
             )
+        )
+
+        self.eje_nodal = calcular_eje_nodal(
+            posiciones=self.posiciones,
+            firma=self.arquetipo_dominante,
+            subtipo=self.subtipo,
+            complementario=self.arquetipo_complementario,
         )
 
         return self.obtener_resultado()
