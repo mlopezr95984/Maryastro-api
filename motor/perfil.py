@@ -8,6 +8,7 @@ from motor.aspectos import calcular_aspectos
 from motor.dinamica import calcular_dinamica_yin_yang
 from motor.firma import calcular_firma_energetica
 from motor.subtipo import calcular_subtipo
+from motor.complementario import calcular_arquetipo_complementario
 
 
 PLANETAS = {
@@ -302,7 +303,8 @@ class PerfilEnergetico:
                 )
             )
 
-            self.posiciones["Nodo Sur medio"] = {
+       
+        self.posiciones["Nodo Sur medio"] = {
                 "longitud": longitud_nodo_sur,
                 "signo": signo_nodo_sur,
                 "grado_en_signo": grado_nodo_sur,
@@ -338,9 +340,22 @@ class PerfilEnergetico:
             self.aspectos
         )
 
+        self.dinamica_yin_yang = calcular_dinamica_yin_yang(
+    self.aspectos
+)
+
+        self.arquetipo_complementario = (
+            calcular_arquetipo_complementario(
+                firma=self.arquetipo_dominante,
+                subtipo=self.subtipo,
+                posiciones=self.posiciones,
+            )
+        )
+
         return self.obtener_resultado()
 
     def obtener_resultado(self) -> dict[str, Any]:
+        
         """
         Devuelve información estructurada que podrán utilizar
         FastAPI, Wix o la aplicación de escritorio.
