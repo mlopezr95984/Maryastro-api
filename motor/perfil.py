@@ -3,9 +3,11 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 import swisseph as swe
+
+from motor.aspectos import calcular_aspectos
+from motor.dinamica import calcular_dinamica_yin_yang
 from motor.firma import calcular_firma_energetica
 from motor.subtipo import calcular_subtipo
-from motor.aspectos import calcular_aspectos
 
 
 PLANETAS = {
@@ -21,6 +23,22 @@ PLANETAS = {
     "Plutón": swe.PLUTO,
     "Nodo Norte medio": swe.MEAN_NODE,
 }
+
+
+SIGNOS = [
+    "Aries",
+    "Tauro",
+    "Géminis",
+    "Cáncer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Escorpio",
+    "Sagitario",
+    "Capricornio",
+    "Acuario",
+    "Piscis",
+]
 
 
 class PerfilEnergetico:
@@ -47,7 +65,7 @@ class PerfilEnergetico:
         self.fecha_utc: datetime | None = None
         self.dia_juliano: float | None = None
         self.cuspides: list[float] = []
-        self.posiciones: dict[str, Any] = {}
+        self.posiciones: dict[str, dict[str, Any]] = {}
         self.angulos: dict[str, float] = {}
         self.aspectos: list[dict[str, Any]] = []
         self.advertencias: list[str] = []
@@ -61,6 +79,23 @@ class PerfilEnergetico:
 
         # Interpretación futura
         self.interpretacion: str = ""
+
+    @staticmethod
+    def obtener_datos_zodiacales(
+        longitud: float,
+    ) -> tuple[str, float]:
+        """
+        Devuelve el nombre del signo y el grado dentro del signo
+        para una longitud zodiacal.
+        """
+
+        longitud_normalizada = longitud % 360
+        indice_signo = int(longitud_normalizada // 30)
+
+        return (
+            SIGNOS[indice_signo],
+            longitud_normalizada % 30,
+        )
 
     @staticmethod
     def calcular_casa(
@@ -108,8 +143,8 @@ class PerfilEnergetico:
         codigo: int,
     ) -> dict[str, Any]:
         """
-        Calcula la longitud, velocidad, retrogradación y casa
-        de un planeta o punto astrológico.
+        Calcula la longitud, el signo, el grado dentro del signo,
+        la velocidad, la retrogradación y la casa de un cuerpo.
         """
 
         resultado, _flags = swe.calc_ut(
@@ -118,17 +153,45 @@ class PerfilEnergetico:
             swe.FLG_SWIEPH | swe.FLG_SPEED,
         )
 
-        longitud = resultado[0]
+        longitud = resultado[0] % 360
         velocidad = resultado[3]
+        signo, grado_en_signo = self.obtener_datos_zodiacales(
+            longitud
+        )
 
         return {
             "longitud": longitud,
+            "signo": signo,
+            "grado_en_signo": grado_en_signo,
             "velocidad": velocidad,
             "retrogrado": velocidad < 0,
             "casa": self.calcular_casa(
                 longitud,
                 self.cuspides,
             ),
+        }
+
+    def crear_posicion_angular(
+        self,
+        longitud: float,
+        casa: int,
+    ) -> dict[str, Any]:
+        """
+        Crea la estructura común para Ascendente y Medio Cielo.
+        """
+
+        longitud = longitud % 360
+        signo, grado_en_signo = self.obtener_datos_zodiacales(
+            longitud
+        )
+
+        return {
+            "longitud": longitud,
+            "signo": signo,
+            "grado_en_signo": grado_en_signo,
+            "velocidad": 0.0,
+            "retrogrado": False,
+            "casa": casa,
         }
 
     def calcular_carta(self) -> None:
@@ -182,8 +245,8 @@ class PerfilEnergetico:
 
         self.cuspides = list(cuspides)
 
-        ascendente = ascmc[0]
-        medio_cielo = ascmc[1]
+        ascendente = ascmc[0] % 360
+        medio_cielo = ascmc[1] % 360
         descendente = (ascendente + 180) % 360
         fondo_cielo = (medio_cielo + 180) % 360
 
@@ -210,19 +273,19 @@ class PerfilEnergetico:
                     f"No se pudo calcular {nombre_cuerpo}: {error}"
                 )
 
-        self.posiciones["Ascendente"] = {
-            "longitud": ascendente,
-            "velocidad": 0.0,
-            "retrogrado": False,
-            "casa": 1,
-        }
+        self.posiciones["Ascendente"] = (
+            self.crear_posicion_angular(
+                ascendente,
+                casa=1,
+            )
+        )
 
-        self.posiciones["Medio Cielo"] = {
-            "longitud": medio_cielo,
-            "velocidad": 0.0,
-            "retrogrado": False,
-            "casa": 10,
-        }
+        self.posiciones["Medio Cielo"] = (
+            self.crear_posicion_angular(
+                medio_cielo,
+                casa=10,
+            )
+        )
 
         if "Nodo Norte medio" in self.posiciones:
             datos_nodo_norte = self.posiciones[
@@ -233,8 +296,16 @@ class PerfilEnergetico:
                 datos_nodo_norte["longitud"] + 180
             ) % 360
 
+            signo_nodo_sur, grado_nodo_sur = (
+                self.obtener_datos_zodiacales(
+                    longitud_nodo_sur
+                )
+            )
+
             self.posiciones["Nodo Sur medio"] = {
                 "longitud": longitud_nodo_sur,
+                "signo": signo_nodo_sur,
+                "grado_en_signo": grado_nodo_sur,
                 "velocidad": datos_nodo_norte["velocidad"],
                 "retrogrado": datos_nodo_norte["retrogrado"],
                 "casa": self.calcular_casa(
@@ -244,25 +315,30 @@ class PerfilEnergetico:
             }
 
     def calcular(self) -> dict[str, Any]:
+        """
+        Ejecuta los cálculos disponibles del Perfil Energético.
+        """
 
-     """
-     Ejecuta los cálculos disponibles del Perfil Energético.
-     """
+        self.calcular_carta()
 
-     self.calcular_carta()
+        self.arquetipo_dominante = calcular_firma_energetica(
+            self.posiciones
+        )
 
-     self.arquetipo_dominante = calcular_firma_energetica(
-        self.posiciones
-    )
+        self.subtipo = calcular_subtipo(
+            self.posiciones
+        )
 
-     self.subtipo = calcular_subtipo(self.posiciones)
+        self.aspectos = calcular_aspectos(
+            self.posiciones,
+            self.orbe,
+        )
 
-     self.aspectos = calcular_aspectos(
-        self.posiciones,
-        self.orbe
-     )
+        self.dinamica_yin_yang = calcular_dinamica_yin_yang(
+            self.aspectos
+        )
 
-     return self.obtener_resultado()
+        return self.obtener_resultado()
 
     def obtener_resultado(self) -> dict[str, Any]:
         """

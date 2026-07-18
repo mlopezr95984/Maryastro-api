@@ -87,6 +87,8 @@ def calcular_aspectos(
                             "cuerpo1": cuerpo_1,
                             "cuerpo2": cuerpo_2,
                             "aspecto": nombre_aspecto,
+                            "signo1": posiciones[cuerpo_1]["signo"],
+                            "signo2": posiciones[cuerpo_2]["signo"],
                             "angulo_exacto": angulo_exacto,
                             "distancia": distancia,
                             "orbe": orbe,
