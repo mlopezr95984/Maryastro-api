@@ -317,6 +317,59 @@ class PerfilEnergetico:
                 ),
             }
 
+
+    def obtener_cuspides_formateadas(
+        self,
+    ) -> list[dict[str, Any]]:
+        """
+        Devuelve las cúspides con su longitud absoluta, signo
+        y grado dentro del signo.
+        """
+
+        resultado: list[dict[str, Any]] = []
+
+        for numero_casa, longitud in enumerate(
+            self.cuspides,
+            start=1,
+        ):
+            signo, grado_en_signo = (
+                self.obtener_datos_zodiacales(longitud)
+            )
+
+            resultado.append(
+                {
+                    "casa": numero_casa,
+                    "longitud": longitud,
+                    "signo": signo,
+                    "grado_en_signo": grado_en_signo,
+                }
+            )
+
+        return resultado
+
+    def obtener_angulos_formateados(
+        self,
+    ) -> dict[str, dict[str, Any]]:
+        """
+        Devuelve los ángulos con su longitud absoluta, signo
+        y grado dentro del signo.
+        """
+
+        resultado: dict[str, dict[str, Any]] = {}
+
+        for nombre, longitud in self.angulos.items():
+            signo, grado_en_signo = (
+                self.obtener_datos_zodiacales(longitud)
+            )
+
+            resultado[nombre] = {
+                "longitud": longitud,
+                "signo": signo,
+                "grado_en_signo": grado_en_signo,
+            }
+
+        return resultado
+
     def calcular(self) -> dict[str, Any]:
         """
         Ejecuta los cálculos disponibles del Perfil Energético.
@@ -382,8 +435,8 @@ class PerfilEnergetico:
                 "sistema_casas": "Placidus",
                 "dia_juliano": self.dia_juliano,
             },
-            "cuspides": self.cuspides,
-            "angulos": self.angulos,
+            "cuspides": self.obtener_cuspides_formateadas(),
+            "angulos": self.obtener_angulos_formateados(),
             "posiciones": self.posiciones,
             "advertencias": self.advertencias,
             "aspectos": self.aspectos,
