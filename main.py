@@ -1,11 +1,12 @@
 from datetime import date, datetime, time
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from motor import PerfilEnergetico
+from ciudades import buscar_ciudades
 
 
 app = FastAPI(
@@ -172,6 +173,16 @@ def carta_prueba() -> dict[str, Any]:
         longitud=-74.0721,
         zona_horaria="America/Bogota",
         orbe=6.0,
+    )
+
+@app.get("/ciudades")
+def consultar_ciudades(
+    q: str = Query(..., min_length=2),
+    limite: int = Query(8, ge=1, le=20),
+):
+    return buscar_ciudades(
+        texto=q,
+        limite=limite,
     )
 
 
