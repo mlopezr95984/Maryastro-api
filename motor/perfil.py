@@ -10,7 +10,9 @@ from motor.firma import calcular_firma_energetica
 from motor.subtipo import calcular_subtipo
 from motor.complementario import calcular_arquetipo_complementario
 from motor.nodos import calcular_eje_nodal
+from motor.puentes import calcular_puentes_energeticos
 from motor.reporte import generar_reporte
+
 
 
 PLANETAS = {
@@ -412,30 +414,13 @@ class PerfilEnergetico:
 
         return self.obtener_resultado()
 
-    def obtener_resultado(self) -> dict[str, Any]:
-   
-        
+    def obtener_resultado(self):
+
         resultado = {
-        "datos": {
-            "nombre": self.nombre,
-            "fecha_local": self.fecha_local.isoformat(),
-            "fecha_utc": (
-                self.fecha_utc.isoformat()
-                if self.fecha_utc
-                else None
-            ),
-            "ciudad": self.ciudad,
-            "latitud": self.latitud,
-            "longitud": self.longitud,
-            "zona_horaria": self.zona_horaria,
-            "orbe": self.orbe,
-            "sistema_casas": "Placidus",
-            "dia_juliano": self.dia_juliano,
-        },
-        "cuspides": self.obtener_cuspides_formateadas(),
-        "angulos": self.obtener_angulos_formateados(),
+        "datos": self.datos,
         "posiciones": self.posiciones,
-        "advertencias": self.advertencias,
+        "cuspides": self.cuspides,
+        "angulos": self.angulos,
         "aspectos": self.aspectos,
         "arquetipo_dominante": self.arquetipo_dominante,
         "subtipo": self.subtipo,
@@ -445,7 +430,11 @@ class PerfilEnergetico:
         "interpretacion": self.interpretacion,
     }
 
-    # Agrega el reporte legible
+        resultado["puentes_energeticos"] = calcular_puentes_energeticos(
+        posiciones=resultado["posiciones"],
+        arquetipo_complementario=resultado["arquetipo_complementario"],
+    )
+
         resultado["reporte"] = generar_reporte(resultado)
 
         return resultado
