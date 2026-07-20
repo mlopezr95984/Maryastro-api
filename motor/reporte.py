@@ -487,56 +487,129 @@ def complementario(resultado: Mapping[str, Any]) -> str:
 
 
 def puentes_energeticos(resultado: Mapping[str, Any]) -> str:
-    eje = resultado.get("eje_nodal", {})
-    complementario = resultado.get("arquetipo_complementario", {})
+    """
+    Presenta los puentes calculados por complementario.py.
 
-    puentes = primer_valor(
-        eje,
-        ["puentes_energeticos", "puentes", "aspectos_puente"],
-        None,
+    Estructura esperada:
+        arquetipo_complementario["puentes"]["internos"]
+        arquetipo_complementario["puentes"]["externos"]
+    """
+    complementario_resultado = resultado.get(
+        "arquetipo_complementario",
+        {},
     )
-    if not puentes:
-        puentes = primer_valor(
-            complementario,
-            ["puentes_energeticos", "puentes", "aspectos_puente"],
-            None,
-        )
-    if not puentes:
-        puentes = resultado.get("puentes_energeticos")
+    puentes = complementario_resultado.get("puentes", {})
 
-    if not puentes:
+    if not isinstance(puentes, Mapping) or not puentes:
         return ""
+
+    internos = puentes.get("internos", {})
+    externos = puentes.get("externos", {})
+
+    if not isinstance(internos, Mapping):
+        internos = {}
+    if not isinstance(externos, Mapping):
+        externos = {}
 
     lineas = [titulo_seccion("Puentes energéticos")]
 
-    if isinstance(puentes, Mapping):
-        puentes = list(puentes.values())
+    etiquetas_internas = [
+        (
+            "por_elemento",
+            "Puentes hacia el elemento complementario",
+            "elemento",
+        ),
+        (
+            "por_modalidad",
+            "Puentes hacia la modalidad complementaria",
+            "modalidad",
+        ),
+        (
+            "por_subtipo",
+            "Puentes hacia el subtipo complementario",
+            "subtipo",
+        ),
+    ]
 
-    if isinstance(puentes, (list, tuple)):
-        for puente in puentes:
-            if isinstance(puente, Mapping):
-                titulo = primer_valor(
-                    puente,
-                    ["titulo", "nombre", "planeta", "aspecto"],
-                    "Puente",
-                )
-                descripcion = primer_valor(
-                    puente,
-                    ["descripcion", "interpretacion", "texto"],
-                    "",
-                )
-                texto = f"• {titulo}"
-                if descripcion:
-                    texto += f": {descripcion}"
-                lineas.append(texto)
-            else:
+    hay_contenido = False
+
+    for clave, titulo, campo_cualidad in etiquetas_internas:
+        lista = internos.get(clave, [])
+
+        if not isinstance(lista, (list, tuple)) or not lista:
+            continue
+
+        hay_contenido = True
+        lineas.extend(["", titulo.upper()])
+
+        for puente in lista:
+            if not isinstance(puente, Mapping):
                 lineas.append(f"• {puente}")
-    else:
-        lineas.append(str(puentes))
+                continue
 
-    return "\n\n".join(lineas[:1]) + (
-        ("\n\n" + "\n\n".join(lineas[1:])) if len(lineas) > 1 else ""
-    )
+            cuerpo = puente.get("cuerpo", "Planeta")
+            signo = puente.get("signo", "")
+            casa = puente.get("casa")
+            cualidad = puente.get(campo_cualidad, "")
+
+            ubicacion = signo
+            if casa not in (None, ""):
+                ubicacion += f", Casa {numero_romano(casa)}"
+
+            texto = f"• {cuerpo}"
+            if ubicacion:
+                texto += f" en {ubicacion}"
+            if cualidad:
+                texto += f" — puente hacia {cualidad}"
+
+            lineas.append(texto)
+
+    etiquetas_externas = [
+        (
+            "por_elemento",
+            "Apoyo externo para el elemento",
+        ),
+        (
+            "por_modalidad",
+            "Apoyo externo para la modalidad",
+        ),
+        (
+            "por_subtipo",
+            "Apoyo externo para el subtipo",
+        ),
+    ]
+
+    for clave, titulo in etiquetas_externas:
+        grupos = externos.get(clave, {})
+
+        if not isinstance(grupos, Mapping) or not grupos:
+            continue
+
+        hay_contenido = True
+
+        for cualidad, recomendaciones in grupos.items():
+            lineas.extend(
+                [
+                    "",
+                    f"{titulo}: {cualidad}".upper(),
+                    (
+                        "La carta no muestra un puente interno suficiente "
+                        "hacia esta cualidad. Puede desarrollarse con ayuda "
+                        "del entorno."
+                    ),
+                ]
+            )
+
+            if isinstance(recomendaciones, (list, tuple)):
+                for recomendacion in recomendaciones:
+                    lineas.append(f"• {recomendacion}")
+            elif recomendaciones:
+                lineas.append(f"• {recomendaciones}")
+
+    if not hay_contenido:
+        return ""
+
+    return "\n".join(lineas)
 
 
 # ==========================================================
