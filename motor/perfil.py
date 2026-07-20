@@ -417,7 +417,6 @@ class PerfilEnergetico:
     def obtener_resultado(self):
 
         resultado = {
-        "datos": self.datos,
         "posiciones": self.posiciones,
         "cuspides": self.cuspides,
         "angulos": self.angulos,
