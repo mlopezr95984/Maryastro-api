@@ -429,6 +429,7 @@ class PerfilEnergetico:
         ``arquetipo_complementario["puentes"]``. No se recalculan aquí.
         """
 
+        
         resultado = {
             "datos": {
                 "nombre": self.nombre,
@@ -460,3 +461,5 @@ class PerfilEnergetico:
         resultado["reporte"] = generar_reporte(resultado)
 
         return resultado
+    
+    
