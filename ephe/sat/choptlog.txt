@@ -1,0 +1,13 @@
+date: Fri Mar 27 10:54:44 2026
+
+host: as80.astro.ch
+fname  sepm9402.se1
+2378496.500000 
+nice -20 /udn/src/chopt3  -p19402 -makeph -whole -o39 -segopt1.000000 -r0.000700
+Segment size = 1.000000, ??, nseg = 146096, Montenbruck mode, no rotation, 
+ord   averr averrc  maxerr   averrv   maxerrv   double packed avp maxp
+     in marcsec                                 in 1000 byte
+39*     1.51     3.80  3789.58     1.51  3677.46  350640 68556.7 187.7 290
+maximum coeff 0.000145, long 414959353,  rmax 0.000700
+
+

@@ -1,8 +1,14 @@
 from datetime import datetime
 from typing import Any
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import swisseph as swe
+BASE_DIR = Path(__file__).resolve().parent.parent
+EPHE_DIR = BASE_DIR / "ephe"
+
+if EPHE_DIR.exists():
+    swe.set_ephe_path(str(EPHE_DIR))
 
 from motor.aspectos import calcular_aspectos
 from motor.dinamica import calcular_dinamica_yin_yang
@@ -25,6 +31,8 @@ PLANETAS = {
     "Urano": swe.URANUS,
     "Neptuno": swe.NEPTUNE,
     "Plutón": swe.PLUTO,
+    "Quirón": swe.CHIRON,
+    "Lilith media": swe.MEAN_APOG,
     "Nodo Norte medio": swe.MEAN_NODE,
 }
 
