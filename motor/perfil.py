@@ -10,7 +10,6 @@ from motor.firma import calcular_firma_energetica
 from motor.subtipo import calcular_subtipo
 from motor.complementario import calcular_arquetipo_complementario
 from motor.nodos import calcular_eje_nodal
-from motor.puentes import calcular_puentes_energeticos
 from motor.reporte import generar_reporte
 
 
@@ -414,27 +413,41 @@ class PerfilEnergetico:
 
         return self.obtener_resultado()
 
-    def obtener_resultado(self):
+    def obtener_resultado(self) -> dict[str, Any]:
+        """
+        Reúne todos los resultados calculados y genera el reporte.
+
+        Los puentes energéticos ya vienen incluidos dentro de
+        ``arquetipo_complementario["puentes"]``. No se recalculan aquí.
+        """
 
         resultado = {
-        "posiciones": self.posiciones,
-        "cuspides": self.cuspides,
-        "angulos": self.angulos,
-        "aspectos": self.aspectos,
-        "arquetipo_dominante": self.arquetipo_dominante,
-        "subtipo": self.subtipo,
-        "dinamica_yin_yang": self.dinamica_yin_yang,
-        "eje_nodal": self.eje_nodal,
-        "arquetipo_complementario": self.arquetipo_complementario,
-        "interpretacion": self.interpretacion,
-    }
-
-        resultado["puentes_energeticos"] = calcular_puentes_energeticos(
-        posiciones=resultado["posiciones"],
-        arquetipo_complementario=resultado["arquetipo_complementario"],
-        cuspides=resultado["cuspides"],
-
-    )
+            "datos": {
+                "nombre": self.nombre,
+                "ciudad": self.ciudad,
+                "fecha_local": self.fecha_local.isoformat(),
+                "fecha_utc": (
+                    self.fecha_utc.isoformat()
+                    if self.fecha_utc is not None
+                    else None
+                ),
+                "latitud": self.latitud,
+                "longitud": self.longitud,
+                "zona_horaria": self.zona_horaria,
+                "orbe": self.orbe,
+            },
+            "posiciones": self.posiciones,
+            "cuspides": self.obtener_cuspides_formateadas(),
+            "angulos": self.obtener_angulos_formateados(),
+            "aspectos": self.aspectos,
+            "arquetipo_dominante": self.arquetipo_dominante,
+            "subtipo": self.subtipo,
+            "dinamica_yin_yang": self.dinamica_yin_yang,
+            "eje_nodal": self.eje_nodal,
+            "arquetipo_complementario": self.arquetipo_complementario,
+            "interpretacion": self.interpretacion,
+            "advertencias": self.advertencias,
+        }
 
         resultado["reporte"] = generar_reporte(resultado)
 
