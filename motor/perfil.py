@@ -17,6 +17,7 @@ from motor.subtipo import calcular_subtipo
 from motor.complementario import calcular_arquetipo_complementario
 from motor.nodos import calcular_eje_nodal
 from motor.reporte import generar_reporte
+from motor.rueda import generar_rueda_svg
 
 
 
@@ -459,6 +460,7 @@ class PerfilEnergetico:
         }
 
         resultado["reporte"] = generar_reporte(resultado)
+        resultado["carta_svg"] = generar_rueda_svg(resultado)
 
         return resultado
     
