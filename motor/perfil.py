@@ -432,6 +432,8 @@ class PerfilEnergetico:
         resultado["puentes_energeticos"] = calcular_puentes_energeticos(
         posiciones=resultado["posiciones"],
         arquetipo_complementario=resultado["arquetipo_complementario"],
+        cuspides=resultado["cuspides"],
+
     )
 
         resultado["reporte"] = generar_reporte(resultado)
