@@ -34,8 +34,7 @@ PLANETAS = {
     "Quirón": swe.CHIRON,
     "Lilith media": swe.MEAN_APOG,
     "Nodo Norte medio": swe.MEAN_NODE,
-    "Nodo Sur medio": swe.MEAN_NODE,
-}
+    }
 
 
 SIGNOS = [
