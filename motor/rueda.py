@@ -445,11 +445,15 @@ def dibujar_rueda(
             f'{numero_casa}</text>'
         )
 
-    # Solo AC y MC, colocados fuera del anillo interno.
+    # Solo AC y MC, dentro de la rueda exterior.
     etiquetas_angulares = {
         "Ascendente": "AC",
         "Medio Cielo": "MC",
     }
+
+    radio_angulos = (
+        radio_exterior + radio_zodiaco_exterior
+    ) / 2
 
     for nombre, abreviatura in etiquetas_angulares.items():
         datos = angulos.get(nombre)
@@ -460,41 +464,23 @@ def dibujar_rueda(
         longitud = float(datos["longitud"]) % 360.0
         angulo = _angulo_rueda(longitud, ascendente)
 
-        radio_etiqueta = radio_exterior + 20
-        radio_grado = radio_exterior + 38
-
         xa, ya = _punto_polar(
             centro,
             centro,
-            radio_etiqueta,
-            angulo,
-        )
-        xgrado, ygrado = _punto_polar(
-            centro,
-            centro,
-            radio_grado,
+            radio_angulos,
             angulo,
         )
 
-        ancla = "middle"
-
-        if xa < centro - 20:
-            ancla = "end"
-        elif xa > centro + 20:
-            ancla = "start"
-
         partes.append(
-            f'<text class="angulo-etiqueta" '
-            f'x="{xa:.2f}" y="{ya:.2f}" '
-            f'text-anchor="{ancla}">'
-            f'{abreviatura}</text>'
-        )
-
-        partes.append(
-            f'<text class="angulo-grado" '
-            f'x="{xgrado:.2f}" y="{ygrado:.2f}" '
-            f'text-anchor="{ancla}">'
-            f'{_formato_angulo(longitud)}</text>'
+            f'<text x="{xa:.2f}" y="{ya - 4:.2f}" '
+            f'text-anchor="middle">'
+            f'<tspan class="angulo-etiqueta" '
+            f'x="{xa:.2f}" dy="0">'
+            f'{abreviatura}</tspan>'
+            f'<tspan class="angulo-grado" '
+            f'x="{xa:.2f}" dy="14">'
+            f'{_formato_angulo(longitud)}</tspan>'
+            f'</text>'
         )
 
     # Aspectos.
