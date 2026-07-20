@@ -39,7 +39,7 @@ def _punto_polar(cx: float, cy: float, radio: float, angulo_grados: float) -> tu
 
 def _angulo_rueda(longitud: float, ascendente: float) -> float:
     """Coloca el Ascendente a la izquierda y el zodiaco en sentido horario."""
-    return 180.0 - ((longitud - ascendente) % 360.0)
+    return 180.0 + ((longitud - ascendente) % 360.0)
 
 
 def _escapar(valor: Any) -> str:
